@@ -18,7 +18,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '20'
 
       - name: Install dependencies
         working-directory: ./backend
@@ -32,6 +32,12 @@ jobs:
         run: npm run build
         working-directory: ./backend
 
+      - name: Write SSH key to file
+        run: echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
+
+      - name: Set file permissions
+        run: chmod 600 ec2_key.pem
+
       - name: Deploy to EC2
         env:
           EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
@@ -39,6 +45,6 @@ jobs:
           TARGET_DIR: ${{ secrets.TARGET_DIR }}
           USERNAME: ${{ secrets.USERNAME }}
         run: |
-          ssh -i $EC2_SSH_KEY $USERNAME@$HOST_DNS "mkdir -p $TARGET_DIR"
-          scp -i $EC2_SSH_KEY -r backend/dist/* $USERNAME@$HOST_DNS:$TARGET_DIR
-          ssh -i $EC2_SSH_KEY $USERNAME@$HOST_DNS "pm2 restart all"
+          ssh -i ec2_key.pem $USERNAME@$HOST_DNS "mkdir -p $TARGET_DIR"
+          scp -i ec2_key.pem -r backend/dist/* $USERNAME@$HOST_DNS:$TARGET_DIR
+          ssh -i ec2_key.pem $USERNAME@$HOST_DNS "pm2 restart all"
