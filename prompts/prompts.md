@@ -19,3 +19,26 @@ y terminando con
 -----END RSA PRIVATE KEY-----
 
 Es esta una buena práctica en cuanto a seguridad? Quiero almacenar el archivo o su contenido en Github Secret Manager, cómo puedo usarlo mientras me conecto a la instancia EC2 por SSH?
+
+### PROMPT
+  la etapa de despliegue en EC2 falla, extrañamente: 
+
+#########
+  ssh -i ec2_key.pem $USERNAME@$HOST_DNS "mkdir -p $TARGET_DIR"
+  scp -i ec2_key.pem -r backend/dist/* $USERNAME@$HOST_DNS:$TARGET_DIR
+  ssh -i ec2_key.pem $USERNAME@$HOST_DNS "pm2 restart all"
+  shell: /usr/bin/bash -e {0}
+  env:
+    EC2_SSH_KEY: ***
+    HOST_DNS: ***
+    TARGET_DIR: ***
+    USERNAME: ***
+Host key verification failed.
+#########
+
+Sin embargo, ese mismo comando funciona en local. Dudo que sea un problema sino más bien un warning que hay que aceptar. En local, me salta lo siguiente (a lo cual hay que contestar yes):
+#########
+This host key is known by the following other names/addresses:
+    ~/.ssh/known_hosts:1: 16.171.238.147
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+#########
